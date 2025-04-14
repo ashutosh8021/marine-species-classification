@@ -34,7 +34,7 @@ Marine Species Dataset from [Kaggle](https://www.kaggle.com/datasets/sripaadsrin
 4. Run all cells to test predictions and visualize with Grad-CAM
 
 ## Results
-- Achieved XX% validation accuracy (you can update this)
+- Achieved 70% validation accuracy 
 - Effective class activation heatmaps for visual feedback
 
 ## Credits
