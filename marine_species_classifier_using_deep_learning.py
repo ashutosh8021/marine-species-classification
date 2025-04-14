@@ -18,10 +18,10 @@ from collections import Counter
 data_dir = '/content/marine_species/Fish_Data/images/cropped'
 files = os.listdir(data_dir)
 
-# Extract species names from filenames by removing the trailing _number.png
+
 species_names = [f.rsplit('_', 1)[0] for f in files if f.endswith('.png')]
 
-# Count images per species
+
 species_counts = Counter(species_names)
 
 print("Species and their image counts:\n")
@@ -36,7 +36,7 @@ data_dir = '/content/marine_species/Fish_Data/images/cropped'
 output_dir = '/content/marine_species/split_data'
 os.makedirs(output_dir, exist_ok=True)
 
-# Get species and their image paths
+
 image_files = [f for f in os.listdir(data_dir) if f.endswith('.png')]
 species_to_files = {}
 
@@ -44,7 +44,7 @@ for f in image_files:
     species = f.rsplit('_', 1)[0]
     species_to_files.setdefault(species, []).append(f)
 
-# Split and copy
+
 for species, files in species_to_files.items():
     train_files, test_files = train_test_split(files, test_size=0.2, random_state=42)
     for split, split_files in [('train', train_files), ('test', test_files)]:
@@ -59,20 +59,20 @@ import torchvision.transforms as transforms
 from torchvision.datasets import ImageFolder
 from torch.utils.data import DataLoader
 
-# Data transforms
+
 transform = transforms.Compose([
     transforms.Resize((128, 128)),
     transforms.ToTensor(),
 ])
 
-# Dataset
+
 train_data = ImageFolder(root=os.path.join(output_dir, 'train'), transform=transform)
 test_data = ImageFolder(root=os.path.join(output_dir, 'test'), transform=transform)
 
 train_loader = DataLoader(train_data, batch_size=32, shuffle=True)
 test_loader = DataLoader(test_data, batch_size=32, shuffle=False)
 
-# Simple CNN
+
 class CNN(nn.Module):
     def __init__(self, num_classes):
         super(CNN, self).__init__()
@@ -101,7 +101,6 @@ model.to(device)
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
-# Training loop
 for epoch in range(5):  # can increase
     model.train()
     total_loss = 0
@@ -205,7 +204,7 @@ print(f"Number of classes: {num_classes}")
 from torchvision.models import resnet18
 import torch.nn as nn
 
-# ... (other imports and code)
+
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = resnet18(pretrained=True)
@@ -214,34 +213,33 @@ import os
 from torchvision import transforms
 from PIL import Image
 
-# Define the transform with normalization
+
 transform = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 
-# Example: load from file path - MODIFIED to use a valid image path
-# Replace 'Salmon/image_001.jpg' with the actual path of an image file
+
 data_dir = '/content/marine_species/Fish_Data/images/cropped'
 
-# Get all files directly in data_dir, not just subfolders
+
 image_files = [f for f in os.listdir(data_dir) if f.endswith('.jpg')]
 
-# Check if there are any image files
+
 if not image_files:
     raise FileNotFoundError(f"No .jpg images found in {data_dir}. Please check the directory.")
 
-img_path = os.path.join(data_dir, image_files[0])  # Use the first image found
-print(img_path) # Print the image path to verify
+img_path = os.path.join(data_dir, image_files[0])  
+print(img_path) 
 
-img = Image.open(img_path).convert('RGB') # Ensure RGB format
+img = Image.open(img_path).convert('RGB') 
 
-# Check if the image is grayscale and convert if needed
+
 if img.mode == 'L':
     img = transforms.Grayscale(num_output_channels=3)(img)
 
-input_tensor = transform(img).unsqueeze(0)  # add batch dimension
+input_tensor = transform(img).unsqueeze(0)  
 
 """!pip install torchcam
 
@@ -252,23 +250,23 @@ from torchcam.utils import overlay_mask
 from torchvision.transforms.functional import to_pil_image
 import matplotlib.pyplot as plt
 
-# Set up Grad-CAM on the last convolutional layer
-cam_extractor = GradCAM(model, target_layer='layer4')  # 'layer4' is last conv block in ResNet18
 
-# Forward pass through the model
+cam_extractor = GradCAM(model, target_layer='layer4') 
+
+
 out = model(input_tensor)
 
-# Get predicted class index
+
 class_idx = out.squeeze(0).argmax().item()
 print(f"Predicted class: {class_names[class_idx]}")
 
-# Extract CAM for the predicted class
+
 activation_map = cam_extractor(class_idx, out)
 
-# Overlay CAM on the original image
+
 result = overlay_mask(to_pil_image(input_tensor.squeeze().cpu()), to_pil_image(activation_map[0].squeeze().cpu(), mode='F'), alpha=0.5)
 
-# Show the result
+
 plt.imshow(result)
 plt.title(f"Predicted: {class_names[class_idx]}")
 plt.axis('off')
